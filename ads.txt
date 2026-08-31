@@ -1,0 +1,4 @@
+# Google AdSense —— 把 pub- 后面的占位改成你自己的发布商 ID
+# （与 index.html 中 AD_CONFIG.client 一致，但不含 "ca-" 前缀）
+# 修改后需部署到站点根目录（与 index.html 同级），Google 会定期抓取校验
+google.com, pub-XXXXXXXXXXXXXXXX, DIRECT, f08c47fec0942fa0

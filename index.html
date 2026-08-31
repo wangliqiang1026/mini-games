@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+<title>合成大西瓜 - 免费在线水果合成小游戏 | Merge Watermelon</title>
+<meta name="description" content="合成大西瓜：风靡全网的免费休闲合成小游戏。移动瞄准、松手投掷，两个相同水果碰撞即可合成更大的水果，快来挑战合成大西瓜！手机电脑都能玩，无需下载。">
+<meta name="keywords" content="合成大西瓜,小游戏,休闲游戏,水果合成,在线游戏,免费游戏,merge fruit,watermelon game">
+<meta name="format-detection" content="telephone=no">
+<meta name="theme-color" content="#ffedd8">
+<meta property="og:title" content="合成大西瓜 - 免费在线小游戏">
+<meta property="og:description" content="两个相同的水果碰到一起会合成更大的水果，快来挑战合成大西瓜！">
+<meta property="og:type" content="website">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🍉</text></svg>">
+<link rel="stylesheet" href="css/style.css">
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"VideoGame","name":"合成大西瓜","description":"免费在线水果合成休闲游戏，快来合成大西瓜！","genre":["休闲游戏","益智游戏"],"gamePlatform":"Web Browser","applicationCategory":"Game","operatingSystem":"Any","offers":{"@type":"Offer","price":"0","priceCurrency":"CNY"}}
+</script>
+</head>
+<body>
+<div class="page">
+  <header class="topbar">
+    <div class="logo"><span class="wm">🍉</span>合成大西瓜</div>
+    <div class="spacer"></div>
+    <button id="btn-mute" class="icon-btn" title="声音开关" aria-label="声音开关">🔊</button>
+    <button id="btn-restart" class="icon-btn" title="重新开始" aria-label="重新开始">↻</button>
+  </header>
+
+  <div class="hud">
+    <div class="cell"><span class="label">分数</span><span class="value" id="score">0</span></div>
+    <div class="cell"><span class="label">最高分</span><span class="value" id="best">0</span></div>
+    <div class="cell next-cell"><span class="label">下一个</span><canvas id="next-canvas" width="88" height="88"></canvas></div>
+  </div>
+
+  <div class="ad-slot" data-ad="top"><div class="ad-placeholder">广告位 · 顶部横幅（配置 AdSense 后生效）</div></div>
+
+  <div class="stage-wrap">
+    <div class="stage">
+      <canvas id="game" width="420" height="700"></canvas>
+
+      <div id="overlay-start" class="overlay">
+        <div class="card">
+          <div class="big-emoji">🍉</div>
+          <h1>合成大西瓜</h1>
+          <p>移动瞄准，松手把水果丢进果盘；<br>两个相同的水果碰到一起，就会合成更大的水果！</p>
+          <p class="hint">小心堆过黄色警戒线哦～</p>
+          <button id="btn-start" class="btn">开始游戏</button>
+        </div>
+      </div>
+
+      <div id="overlay-over" class="overlay hidden">
+        <div class="card">
+          <h1>游戏结束</h1>
+          <div class="score-big" id="final-score">0</div>
+          <p>最高分 <b id="final-best">0</b></p>
+          <div id="new-record" class="badge-new" style="display:none">🏆 新纪录！</div>
+          <div class="ad-slot ad-slot--modal" data-ad="modal" data-lazy><div class="ad-placeholder">广告位</div></div>
+          <button id="btn-again" class="btn">再来一局</button>
+          <button id="btn-share" class="btn secondary">分享成绩</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="ad-slot" data-ad="bottom"><div class="ad-placeholder">广告位 · 底部横幅（配置 AdSense 后生效）</div></div>
+
+  <footer>© 2026 合成大西瓜 · <a href="privacy.html" rel="nofollow">隐私政策</a></footer>
+</div>
+
+<div id="toast"></div>
+
+<script src="js/audio.js"></script>
+<script src="js/physics.js"></script>
+<script src="js/fruits.js"></script>
+<script src="js/game.js"></script>
+<script>
+/* ==================== Google AdSense 配置（唯一需要修改的地方） ====================
+   1. 把 client 改成你的发布商 ID（形如 ca-pub-1234567890123456）
+   2. 在 AdSense 后台创建 3 个「展示广告」单元，把单元 ID 填入 slots
+   3. 同步更新 ads.txt 文件（详见 README.md）
+   未配置前页面只显示虚线占位框，不会加载任何广告代码。 */
+window.AD_CONFIG = {
+  client: "ca-pub-XXXXXXXXXXXXXXXX",
+  slots: { top: "0000000000", bottom: "0000000000", modal: "0000000000" }
+};
+(function () {
+  var cfg = window.AD_CONFIG;
+  var clientOk = /^ca-pub-\d{10,20}$/.test(cfg.client);
+  function fillSlot(el) {
+    var ph = el.querySelector(".ad-placeholder");
+    if (!clientOk) { el.classList.add("ad-slot--empty"); return; }
+    if (ph) ph.parentNode.removeChild(ph);
+    var slotId = cfg.slots[el.getAttribute("data-ad")] || "";
+    var slotOk = /^\d{9,12}$/.test(slotId) && slotId !== "0000000000";
+    if (!slotOk) return;
+    var ins = document.createElement("ins");
+    ins.className = "adsbygoogle";
+    ins.style.display = "block";
+    ins.setAttribute("data-ad-client", cfg.client);
+    ins.setAttribute("data-ad-slot", slotId);
+    ins.setAttribute("data-ad-format", "auto");
+    ins.setAttribute("data-full-width-responsive", "true");
+    el.appendChild(ins);
+    try { (window.adsbygoogle = window.adsbygoogle || []).push({}); } catch (e) {}
+  }
+  if (clientOk) {
+    var s = document.createElement("script");
+    s.async = true;
+    s.src = "https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=" + cfg.client;
+    s.setAttribute("crossorigin", "anonymous");
+    document.head.appendChild(s);
+  }
+  window.__fillAdSlots = function () {
+    var els = document.querySelectorAll(".ad-slot:not([data-lazy])");
+    for (var i = 0; i < els.length; i++) fillSlot(els[i]);
+  };
+  window.__fillLazyAds = function () {
+    var els = document.querySelectorAll(".ad-slot[data-lazy]");
+    for (var i = 0; i < els.length; i++) fillSlot(els[i]);
+  };
+  window.__fillAdSlots();
+})();
+</script>
+</body>
+</html>
